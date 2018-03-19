@@ -60,7 +60,6 @@ class Client(object):
     def run(self):
         while True:
             # self.ws.write_message('{}'.format(time()))
-            self.ws.write_message(stream_in.read(AUDIO_CHUNK), True)
             msg = yield self.ws.read_message()
             if msg is None:
                 print('No message...')
@@ -69,6 +68,7 @@ class Client(object):
                 break
 
             stream_out.write(msg)
+            self.ws.write_message(stream_in.read(AUDIO_CHUNK), True)
 
     def keep_alive(self):
         if self.ws is None:

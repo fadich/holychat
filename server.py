@@ -13,9 +13,10 @@ class EchoWebSocket(websocket.WebSocketHandler):
 
     def open(self):
         connections.append(self)
+        self.write_message(b'\00', True)
         print('Connected by <{}>'.format(self.request.remote_ip))
 
-    def on_message(self, message, *args, **kwargs):
+    def on_message(self, message):
         for connection in connections:
             if connection != self:
                 connection.write_message(message, True)
