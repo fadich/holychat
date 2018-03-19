@@ -13,16 +13,16 @@ class EchoWebSocket(websocket.WebSocketHandler):
 
     def open(self):
         connections.append(self)
-        print('WebSocket opened')
+        print('Connected by <{}>'.format(self.request.remote_ip))
 
     def on_message(self, message, *args, **kwargs):
         for connection in connections:
-            if connection == self:
+            if connection != self:
                 connection.write_message(message, True)
 
     def on_close(self):
         connections.remove(self)
-        print('WebSocket closed')
+        print('Disconnected by <{}>'.format(self.request.remote_ip))
 
 
 if __name__ == '__main__':
@@ -31,7 +31,8 @@ if __name__ == '__main__':
     ])
     application.listen(8888)
 
+    print('Server started at <{}>'.format('localhost:8888'))
     try:
         ioloop.IOLoop.current().start()
     except KeyboardInterrupt as e:
-        print('Stopping app...')
+        print('Stopping server...')

@@ -12,16 +12,25 @@ AUDIO_CHANNELS = 1
 AUDIO_RATE_IN = 80100
 AUDIO_RATE_OUT = 82100
 AUDIO_WIDTH = 2
-AUDIO_CHUNK = 128
+AUDIO_CHUNK = 1024
 
 
 audio_in = pyaudio.PyAudio()
-
 stream_in = audio_in.open(
     format=AUDIO_FORMAT,
     channels=AUDIO_CHANNELS,
     rate=AUDIO_RATE_IN,
     input=True,
+    frames_per_buffer=AUDIO_CHUNK
+)
+
+audio_out = pyaudio.PyAudio()
+format_out = audio_out.get_format_from_width(AUDIO_WIDTH)
+stream_out = audio_out.open(
+    format=format_out,
+    channels=AUDIO_CHANNELS,
+    rate=AUDIO_RATE_OUT,
+    output=True,
     frames_per_buffer=AUDIO_CHUNK
 )
 
@@ -59,32 +68,11 @@ class Client(object):
                 self.ws = None
                 break
 
-            th = Thread(target=self.write_message, args=(msg,))
-            th.start()
-            th.join()
+            stream_out.write(msg)
 
     def keep_alive(self):
         if self.ws is None:
             self.connect()
-
-    def write_message(self, message):
-        print('Playing...')
-        print(message)
-        audio_out = pyaudio.PyAudio()
-        format_out = audio_out.get_format_from_width(AUDIO_WIDTH)
-
-        stream_out = audio_out.open(
-            format=format_out,
-            channels=AUDIO_CHANNELS,
-            rate=AUDIO_RATE_OUT,
-            output=True,
-            frames_per_buffer=AUDIO_CHUNK
-        )
-        stream_out.write(message)
-        stream_out.stop_stream()
-        stream_out.close()
-        audio_out.terminate()
-        exit()
 
 
 if __name__ == '__main__':
@@ -98,3 +86,7 @@ if __name__ == '__main__':
         stream_in.stop_stream()
         stream_in.close()
         audio_in.terminate()
+
+        stream_out.stop_stream()
+        stream_out.close()
+        audio_out.terminate()
