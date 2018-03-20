@@ -56,9 +56,10 @@ if __name__ == '__main__':
     application = web.Application([
         (r'/', EchoWebSocket),
     ])
+    application.default_host = '192.168.0.100'
     application.listen(8888)
 
-    print('Server started at <{}>'.format('localhost:8888'))
+    print('Server started at <{}>'.format('192.168.0.100:8888'))
     try:
         ioloop.IOLoop.current().start()
     except KeyboardInterrupt as e:

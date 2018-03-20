@@ -12,7 +12,7 @@ AUDIO_CHANNELS = 1
 AUDIO_RATE_IN = 22000
 AUDIO_RATE_OUT = 22100
 AUDIO_WIDTH = 2
-AUDIO_CHUNK = 128
+AUDIO_CHUNK = 512
 
 
 audio_in = pyaudio.PyAudio()
@@ -59,7 +59,7 @@ class Client(object):
     @gen.coroutine
     def run(self):
         while True:
-            rec = stream_in.read(AUDIO_CHUNK * 8)
+            rec = stream_in.read(AUDIO_CHUNK * 3)
             try:
                 self.ws.write_message(rec.hex())
             except Exception as e:
@@ -86,7 +86,7 @@ class Client(object):
 if __name__ == '__main__':
     try:
         print(time.time())
-        client = Client('ws://localhost:8888?id={}'.format(time.time()), CLIENT_TIMEOUT)
+        client = Client('ws://192.168.0.100:8888?id={}'.format(time.time()), CLIENT_TIMEOUT)
     except (iostream.StreamClosedError, ) as e:
         print('Disconnected...')
     except KeyboardInterrupt as e:
