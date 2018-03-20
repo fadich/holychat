@@ -1,7 +1,7 @@
 from tornado import websocket, web, ioloop
 
 
-connections = []
+connections = dict()
 
 
 class EchoWebSocket(websocket.WebSocketHandler):
@@ -12,18 +12,44 @@ class EchoWebSocket(websocket.WebSocketHandler):
         return True
 
     def open(self):
-        connections.append(self)
-        self.write_message(b'\00', True)
+        connections[self.identifier] = {
+            'connection': self,
+            'queue': list()
+        }
+
         print('Connected by <{}>'.format(self.request.remote_ip))
 
     def on_message(self, message):
-        for connection in connections:
-            if connection != self:
-                connection.write_message(message, True)
+        self.add_message(message)
+
+        # print({ k: len(connections[k].get('queue')) for k in connections})
+
+        self.write_message({
+            'queue': self.get_queue()
+        })
 
     def on_close(self):
-        connections.remove(self)
+        try:
+            connections.pop(self.identifier)
+        except KeyError as e:
+            pass
         print('Disconnected by <{}>'.format(self.request.remote_ip))
+
+    @property
+    def identifier(self):
+        return self.request.uri[5:]
+
+    def add_message(self, message):
+        for _id in connections:
+            if _id != self.identifier:
+                # if len(connections[_id].get('queue')) > 400:
+                #     connections[_id]['queue'] = []
+                connections[_id].get('queue').append(message)
+
+    def get_queue(self):
+        queue = connections[self.identifier].get('queue')
+        connections[self.identifier]['queue'] = list()
+        return queue
 
 
 if __name__ == '__main__':
