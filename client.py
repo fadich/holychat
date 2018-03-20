@@ -12,7 +12,7 @@ AUDIO_CHANNELS = 1
 AUDIO_RATE_IN = 22000
 AUDIO_RATE_OUT = 22100
 AUDIO_WIDTH = 2
-AUDIO_CHUNK = 512
+AUDIO_CHUNK = 256
 
 
 audio_in = pyaudio.PyAudio()
@@ -59,7 +59,7 @@ class Client(object):
     @gen.coroutine
     def run(self):
         while True:
-            rec = stream_in.read(AUDIO_CHUNK * 3)
+            rec = stream_in.read(AUDIO_CHUNK * 15)
             try:
                 self.ws.write_message(rec.hex())
             except Exception as e:

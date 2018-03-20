@@ -22,7 +22,7 @@ class EchoWebSocket(websocket.WebSocketHandler):
     def on_message(self, message):
         self.add_message(message)
 
-        # print({ k: len(connections[k].get('queue')) for k in connections})
+        print({ k: len(connections[k].get('queue')) for k in connections})
 
         self.write_message({
             'queue': self.get_queue()
